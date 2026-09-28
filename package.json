@@ -8,7 +8,8 @@
     "test": "node --test \"tests/js/*.test.mjs\"",
     "smoke": "node scripts/smoke.mjs",
     "icons": "node scripts/build-icons.mjs",
-    "mobile": "node scripts/mobile-check.mjs"
+    "mobile": "node scripts/mobile-check.mjs",
+    "dist": "node scripts/build-dist.mjs"
   },
   "devDependencies": {
     "@phosphor-icons/core": "^2.1.1",

@@ -1,12 +1,12 @@
-# Launch reminders and liftoff alerts. Runs hourly (ntfy delivers the reminders at
-# the exact minute, so the watcher only has to schedule them ahead), and exits in
-# seconds unless a notable launch or a planned flight is close.
+# Launch reminders and liftoff alerts. Runs every ten minutes, but exits in a few
+# seconds (no dependencies, no Launch Library 2 request) unless a notable launch
+# or a planned flight is close.
 # Waits for the repository variable ORBITAL_ENABLED=true (see README).
 name: Launch watch
 
 on:
   schedule:
-    - cron: "7 * * * *"
+    - cron: "*/10 * * * *"
   workflow_dispatch:
 
 permissions:

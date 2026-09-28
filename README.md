@@ -49,8 +49,7 @@ CelesTrak, Launch Library 2, Spaceflight News
 
 ## Run your own
 
-1. In **Settings → Pages**, set the source to **GitHub Actions**. Pages needs a public repository,
-   or GitHub Pro for a private one.
+1. Fork this repository. Then, in **Settings → Pages**, set the source to **GitHub Actions**.
 2. Edit [`config.yaml`](config.yaml):
    - set `site.url` to your Pages URL;
    - pick a unique `ntfy.topic_prefix`, since anyone can post to a public ntfy topic;
@@ -66,12 +65,13 @@ CelesTrak, Launch Library 2, Spaceflight News
 
 4. In **Settings → Secrets and variables → Actions → Variables**, add `ORBITAL_ENABLED` = `true`.
    The scheduled jobs stay off until you do.
-   - **Site** runs every 6 hours: data refresh, pass alerts and deploy.
-   - **Launch watch** runs hourly.
+   This also keeps a fork from posting to someone else's topics.
+   - **Site** runs every 3 hours: data refresh, pass alerts and deploy.
+   - **Launch watch** runs every 10 minutes.
    - **Weekly digest** runs on Sundays.
 
-   That is about 1,100 Actions minutes a month, inside the 2,000 free for private repositories.
-   Public repositories get unlimited minutes, so you can run them more often there.
+   Scheduled runs are free on public repositories. A private copy gets 2,000 minutes a month, so
+   slow the schedules down there.
 
 ## Develop
 

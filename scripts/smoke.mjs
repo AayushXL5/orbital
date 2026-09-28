@@ -10,7 +10,10 @@ import { readFile } from "node:fs/promises";
 import { extname, join, normalize } from "node:path";
 import puppeteer from "puppeteer-core";
 
-const ROOT = new URL("../web/", import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, "$1");
+// SMOKE_ROOT=dist npm run smoke checks the production build instead of web/.
+const ROOT = process.env.SMOKE_ROOT
+  ? new URL(`../${process.env.SMOKE_ROOT}/`, import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, "$1")
+  : new URL("../web/", import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, "$1");
 const OUT = new URL("../.cache/smoke/", import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, "$1");
 const TYPES = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".json": "application/json",
   ".jpg": "image/jpeg", ".svg": "image/svg+xml", ".xml": "application/xml" };
