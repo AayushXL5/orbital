@@ -219,6 +219,35 @@ def telegram_send(html: str, *, dry_run: bool = False, log=print) -> bool:
     return True
 
 
+BUTTONDOWN_API = "https://api.buttondown.com/v1/emails"
+
+
+def buttondown_send(subject: str, markdown: str, *, dry_run: bool = False, log=print,
+                    session: requests.Session | None = None) -> bool:
+    """Email everyone subscribed through the site's Buttondown form.
+
+    Skips if BUTTONDOWN_API_KEY isn't set, and if an email with this subject
+    already exists, so a rerun of the digest job never sends it twice.
+    """
+    key = os.environ.get("BUTTONDOWN_API_KEY")
+    if not key:
+        log("  buttondown: not configured, skipped")
+        return False
+    http = session or requests.Session()
+    headers = {"Authorization": f"Token {key}", "User-Agent": USER_AGENT}
+    existing = http.get(BUTTONDOWN_API, params={"subject": subject}, headers=headers, timeout=30)
+    if existing.ok and any(e.get("subject") == subject for e in existing.json().get("results", [])):
+        log(f"  buttondown: '{subject}' was already sent, skipped")
+        return False
+    log(f"  buttondown -> subscribers: {subject}")
+    if dry_run:
+        return True
+    resp = http.post(BUTTONDOWN_API, headers=headers, timeout=30,
+                     json={"subject": subject, "body": markdown, "status": "about_to_send"})
+    resp.raise_for_status()
+    return True
+
+
 def send_email(subject: str, html: str, text: str, *, dry_run: bool = False, log=print) -> bool:
     """Send through SMTP_HOST etc. to DIGEST_EMAIL_TO. Skips if not configured."""
     host, to = os.environ.get("SMTP_HOST"), os.environ.get("DIGEST_EMAIL_TO")

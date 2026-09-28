@@ -125,6 +125,7 @@ class Builder:
             "ntfy": {"server": cfg.ntfy_server, "launches_topic": cfg.launches_topic,
                      "weekly_topic": cfg.weekly_topic},
             "telegram": {"channel_url": cfg.telegram_channel_url},
+            "email": {"buttondown_username": cfg.buttondown_username},
             "alerts": {"objects": cfg.alert_objects, "lead_minutes": cfg.lead_minutes,
                        "min_peak_deg": cfg.min_peak, "min_elevation_deg": cfg.min_elevation,
                        "dark_sun_deg": cfg.dark_sun},

@@ -23,7 +23,7 @@ counts down to the launches worth watching, and sends a weekly digest.
 
   Alerts move when a launch slips and disappear if it's scrubbed.
 - **Digest.** Every Sunday: what's launching, the best passes over your city and the week's news.
-  You can read it on the web or get it by RSS, ntfy, Telegram or email.
+  You can read it on the web, sign up by email on the site, or get it by RSS, ntfy or Telegram.
 
 There's no server. It's a static site on GitHub Pages plus a few scheduled GitHub Actions jobs.
 
@@ -58,8 +58,9 @@ CelesTrak, Launch Library 2, Spaceflight News
 
    | Secret | For |
    | --- | --- |
+   | `BUTTONDOWN_API_KEY` | Emailing the digest to everyone who signs up on the site. Also set `email.buttondown_username` in `config.yaml`, which turns the sign-up form on |
    | `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` | Liftoff posts and the digest in a Telegram channel |
-   | `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `DIGEST_EMAIL_FROM`, `DIGEST_EMAIL_TO` | The digest by email |
+   | `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `DIGEST_EMAIL_FROM`, `DIGEST_EMAIL_TO` | The digest to a fixed list of addresses, without Buttondown |
    | `NTFY_TOKEN` | An ntfy account, for higher limits |
    | `LL2_TOKEN` | A Launch Library 2 key, for more than 15 requests an hour |
 

@@ -71,3 +71,4 @@ jobs:
           SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
           DIGEST_EMAIL_FROM: ${{ secrets.DIGEST_EMAIL_FROM }}
           DIGEST_EMAIL_TO: ${{ secrets.DIGEST_EMAIL_TO }}
+          BUTTONDOWN_API_KEY: ${{ secrets.BUTTONDOWN_API_KEY }}

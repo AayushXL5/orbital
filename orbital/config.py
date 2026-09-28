@@ -40,6 +40,7 @@ class Config:
         self.ntfy_server = ntfy.get("server", "https://ntfy.sh").rstrip("/")
         self.topic_prefix = ntfy["topic_prefix"]
         self.telegram_channel_url = (data.get("telegram") or {}).get("channel_url", "")
+        self.buttondown_username = ((data.get("email") or {}).get("buttondown_username") or "").strip()
 
         alerts = data.get("alerts", {})
         self.horizon_hours = float(alerts.get("horizon_hours", 48))

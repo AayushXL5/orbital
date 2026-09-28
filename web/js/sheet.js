@@ -1,81 +1,108 @@
-// The sheet on compact widths: three detents. Drag the grabber to resize (a
-// fling carries it to the next detent) and tap it to cycle, as on iOS.
+// The sheet on phones. Drag the handle to any height and it stays there; a quick
+// flick carries it to the top, or down to a slim handle so the whole Earth shows.
+// Tap the handle to fold it down or bring it back. The app hides it completely
+// when you tap the tab you're already on.
 
-const ORDER = ["small", "medium", "large"];
+const FLICK = 0.9;      // px/ms: a release faster than this carries on to the end
+const MINI = 44;        // the folded sheet: just the handle
 
 export class Sheet {
-  constructor(panel, handle, grabber, { onChange } = {}) {
+  constructor(panel, handle, grabber, { onChange, initial } = {}) {
     this.panel = panel;
     this.onChange = onChange;
-    this.detent = "medium";
-    this.drag = null;
+    this.height = null;
+    this.open = initial || null;     // last unfolded height, restored by show()
     this.enabled = false;
+    this.drag = null;
     handle.addEventListener("pointerdown", (e) => this.start(e));
     handle.addEventListener("pointermove", (e) => this.move(e));
     handle.addEventListener("pointerup", (e) => this.end(e));
     handle.addEventListener("pointercancel", (e) => this.end(e));
-    grabber.addEventListener("click", () => { if (!this.moved) this.cycle(); });
+    grabber.addEventListener("click", () => { if (!this.moved) this.toggleFold(); });
     grabber.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); this.cycle(); }
-      if (e.key === "ArrowUp") { e.preventDefault(); this.step(1); }
-      if (e.key === "ArrowDown") { e.preventDefault(); this.step(-1); }
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); this.toggleFold(); }
+      if (e.key === "ArrowUp") { e.preventDefault(); this.set((this.height || 0) + 80); }
+      if (e.key === "ArrowDown") { e.preventDefault(); this.set(Math.max(MINI, (this.height || 0) - 80)); }
     });
-    window.addEventListener("resize", () => this.enabled && this.set(this.detent, false));
+    window.addEventListener("resize", () => this.enabled && this.set(this.height, false));
   }
 
-  heights() {
+  limits() {
     const vh = window.innerHeight;
-    // Medium leaves room above for the capsule, map controls and the playback bar.
-    return { small: 148, medium: Math.round(Math.max(200, Math.min(vh * 0.44, vh - 392))), large: Math.round(vh - 200) };
+    return { mini: MINI, max: Math.round(vh - 150),
+      preferred: Math.round(Math.max(200, Math.min(vh * 0.44, vh - 392))) };
   }
+
+  get hidden() { return this.height === 0; }
+  get folded() { return this.height !== null && this.height <= MINI + 20; }
 
   enable(on) {
     this.enabled = on;
-    if (on) this.set(this.detent, false);
+    if (on) this.set(this.height ?? this.open ?? this.limits().preferred, false);
     else document.documentElement.style.removeProperty("--sheet-h");
   }
 
-  set(name, animate = true) {
-    this.detent = name;
+  clamp(h) {
+    const { mini, max } = this.limits();
+    return h <= 0 ? 0 : Math.max(mini, Math.min(max, h));
+  }
+
+  set(h, animate = true) {
+    h = this.clamp(h ?? this.limits().preferred);
+    this.height = h;
+    if (h > MINI + 20) this.open = h;
     this.panel.classList.toggle("dragging", !animate);
-    this.apply(this.heights()[name]);
+    this.apply(h, true);
     if (!animate) requestAnimationFrame(() => this.panel.classList.remove("dragging"));
-    this.onChange?.(name);
   }
 
-  apply(h) {
+  apply(h, final) {
     document.documentElement.style.setProperty("--sheet-h", `${Math.round(h)}px`);
+    this.panel.classList.toggle("is-hidden", h === 0);
+    this.onChange?.(h, final);
   }
 
-  cycle() { this.set(ORDER[(ORDER.indexOf(this.detent) + 1) % ORDER.length]); }
-  step(dir) { this.set(ORDER[Math.max(0, Math.min(ORDER.length - 1, ORDER.indexOf(this.detent) + dir))]); }
+  show() { this.set(this.open && this.open > MINI + 20 ? this.open : this.limits().preferred); }
+  hide() { this.set(0); }
+  fold() { this.set(MINI); }
+  toggleFold() { if (this.folded || this.hidden) this.show(); else this.fold(); }
+  ensureOpen() { if ((this.height ?? 0) < 200) this.set(Math.max(this.open || 0, this.limits().preferred)); }
 
   start(e) {
     if (!this.enabled || e.target.closest("button:not(.grabber), a, input")) return;
-    this.drag = { y: e.clientY, h: this.panel.getBoundingClientRect().height, t: performance.now(), id: e.pointerId };
+    const h = this.panel.getBoundingClientRect().height;
+    this.drag = { y: e.clientY, h, id: e.pointerId, samples: [{ y: e.clientY, t: performance.now() }] };
     this.moved = false;
     e.currentTarget.setPointerCapture?.(e.pointerId);
     this.panel.classList.add("dragging");
   }
 
   move(e) {
-    if (!this.drag || e.pointerId !== this.drag.id) return;
-    const dy = this.drag.y - e.clientY;
+    const d = this.drag;
+    if (!d || e.pointerId !== d.id) return;
+    const dy = d.y - e.clientY;
     if (Math.abs(dy) > 4) this.moved = true;
-    const hs = this.heights();
-    this.apply(Math.max(hs.small - 40, Math.min(hs.large + 24, this.drag.h + dy)));
+    const now = performance.now();
+    d.samples.push({ y: e.clientY, t: now });
+    while (d.samples.length > 2 && now - d.samples[0].t > 100) d.samples.shift();
+    const { mini, max } = this.limits();
+    this.apply(Math.max(mini - 16, Math.min(max + 24, d.h + dy)), false);
   }
 
   end(e) {
-    if (!this.drag || e.pointerId !== this.drag.id) return;
-    const dy = this.drag.y - e.clientY;
-    const velocity = dy / Math.max(1, performance.now() - this.drag.t);
-    const projected = this.drag.h + dy + velocity * 200;
+    const d = this.drag;
+    if (!d || e.pointerId !== d.id) return;
     this.drag = null;
     this.panel.classList.remove("dragging");
-    if (!this.moved) return;
-    const hs = this.heights();
-    const name = ORDER.reduce((best, k) => (Math.abs(hs[k] - projected) < Math.abs(hs[best] - projected) ? k : best), "small");
-    this.set(name);
+    if (!this.moved) return this.apply(this.height, true);
+    const first = d.samples[0], last = d.samples[d.samples.length - 1];
+    const recent = performance.now() - last.t < 80;
+    const velocity = recent && last.t > first.t ? (first.y - last.y) / (last.t - first.t) : 0;
+    const { mini, max } = this.limits();
+    // A drag never hides the sheet: at the bottom it folds to the handle.
+    let h = Math.max(mini, d.h + (d.y - e.clientY));
+    if (velocity > FLICK) h = max;
+    else if (velocity < -FLICK) h = mini;
+    this.set(h);
   }
 }

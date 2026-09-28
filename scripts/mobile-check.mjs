@@ -32,6 +32,12 @@ const server = createServer(async (req, res) => {
   const file = path.endsWith("\\") || path.endsWith("/") ? join(path, "index.html") : path;
   let body;
   try { body = await readFile(file); } catch { res.writeHead(404).end(); return; }
+  if (file.endsWith("config.json")) {
+    // Preview the email sign-up even when no Buttondown username is configured.
+    const cfg = JSON.parse(body);
+    cfg.email = { buttondown_username: cfg.email?.buttondown_username || "orbital-preview" };
+    body = JSON.stringify(cfg);
+  }
   res.writeHead(200, { "Content-Type": TYPES[extname(file)] || "application/octet-stream" });
   res.end(body);
 });
@@ -131,12 +137,36 @@ for (const device of DEVICES.filter((d) => !only || d.name.includes(only))) {
     el?.click();
   }, id);
   const compact = await page.evaluate(() => matchMedia("(max-width: 899px) and (min-height: 501px)").matches);
+  const sheetH = () => page.evaluate(() => parseInt(getComputedStyle(document.documentElement).getPropertyValue("--sheet-h"), 10));
+  // Drag the grabber slowly to a y position and let go (no flick).
+  const drag = async (toY) => {
+    const box = await (await page.$("#grabber")).boundingBox();
+    const x = box.x + box.width / 2, y0 = box.y + box.height / 2;
+    await page.mouse.move(x, y0);
+    await page.mouse.down();
+    for (let i = 1; i <= 12; i++) { await page.mouse.move(x, y0 + ((toY - y0) * i) / 12); await wait(16); }
+    await wait(220);
+    await page.mouse.up();
+    await wait(500);
+  };
+  const tapActiveTab = () => page.evaluate(() => document.querySelector('#tabbar [aria-selected="true"]').click());
 
   await check("sky");
   if (compact) {
-    await click("#grabber"); await check("sky-large");
-    await click("#grabber"); await check("sky-small");
-    await click("#grabber");
+    const sheetProblems = [];
+    await drag(80); await check("sheet-top");
+    const top = await sheetH();
+    await drag(device.height * 0.55); await check("sheet-middle");
+    const middle = await sheetH();
+    if (Math.abs(middle - (device.height - 78 - device.height * 0.55)) > 40) sheetProblems.push(`sheet did not stay where it was dropped (${middle}px)`);
+    await drag(device.height); await check("sheet-bottom");
+    if ((await sheetH()) !== 44) sheetProblems.push(`sheet did not fold to the handle (${await sheetH()}px)`);
+    await tapActiveTab(); await check("sheet-hidden");
+    if ((await sheetH()) !== 0) sheetProblems.push("tapping the active tab did not hide the sheet");
+    await tapActiveTab(); await wait(300);
+    if ((await sheetH()) !== middle) sheetProblems.push(`tapping it again restored ${await sheetH()}px, not ${middle}px`);
+    if (top < middle) sheetProblems.push("dragging up did not raise the sheet");
+    shots.push({ screen: "sheet-behaviour", issues: sheetProblems });
   }
   await click('#panel-body [data-nav="pass"]'); await check("pass");
   await click('[data-act="back"]');
@@ -154,6 +184,8 @@ for (const device of DEVICES.filter((d) => !only || d.name.includes(only))) {
   await tab("flights"); await check("flights");
   await click('#panel-body [data-nav="flight"]'); await wait(1500); await check("flight");
   await tab("digest"); await check("digest");
+  await page.evaluate(() => document.querySelector("[data-email-form] button")?.scrollIntoView({ block: "center" }));
+  await check("digest-email");
   await tab("alerts"); await check("alerts");
   await click('#panel-body [data-nav="about"]'); await check("about");
   await click('[data-act="back"]');

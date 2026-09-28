@@ -23,7 +23,7 @@ from .config import Config
 from .flights import load_flights, resolve_t0
 from .http import Http
 from .messages import describe_pass
-from .notify import Note, Ntfy, click_url, send_email, telegram_send
+from .notify import Note, Ntfy, buttondown_send, click_url, send_email, telegram_send
 from .passes import find_passes
 
 WEEK = 7 * 86400
@@ -125,6 +125,36 @@ def render_text(digest: dict) -> str:
     return "\n".join(lines)
 
 
+def render_markdown(digest: dict) -> str:
+    """The email version: Buttondown renders it into its own template."""
+    s = digest["stats"]
+    lines = [f"**{s['launches']} launches this week**"
+             + (f", {s['notable']} worth watching" if s["notable"] else "")
+             + f". Last week {s['flown']} flew and {s['succeeded']} succeeded. Times in {digest['timezone']}.", ""]
+    for f in digest["flights"]:
+        lines += [f"## {'Coming up' if f['upcoming'] else 'Just flew'}: {f['name']}", "", f"{f['when']}. {f['summary']}",
+                  "", f"[{'See the planned orbit' if f['upcoming'] else 'Replay the flight'}]({f['link']})", ""]
+    if digest["launches"]:
+        lines += ["## Launching this week", ""]
+        lines += [f"- **{l['short']}**{' (worth watching)' if l['notable'] else ''}, {l['vehicle']} from {l['site']}, "
+                  f"{l['when']}" for l in digest["launches"]]
+        lines.append("")
+    lines += [f"## Look up from {digest['look_city']}", ""]
+    looks = [f"- **{x['when']}**: {x['name']}, up to {x['max_el']}°. {x['text']}" for x in digest["looks"]]
+    lines += looks or ["No bright, high passes this week."]
+    lines.append("")
+    if digest["results"]:
+        lines += ["## Last week's launches", ""]
+        lines += [f"- {l['short']} ({l['vehicle']}): {l['status_name'] or l['status']}" for l in digest["results"]]
+        lines.append("")
+    if digest["news"]:
+        lines += ["## News", ""]
+        lines += [f"- [{n['title']}]({n['url']}), {n['site']}" for n in digest["news"][:8]]
+        lines.append("")
+    lines.append(f"[Read this digest on the web]({digest['url']}) · [Open Orbital]({digest['site_url']})")
+    return "\n".join(lines)
+
+
 def render_telegram(digest: dict) -> str:
     e = html.escape
     parts = [f"<b>{e(digest['title'])}</b>"]
@@ -198,6 +228,7 @@ def send(cfg: Config, digest: dict, ntfy: Ntfy, dry_run: bool = False, log=print
                                         key_time=time.time(), title=title, message=body,
                                         click=digest["url"]))
     telegram_send(render_telegram(digest), dry_run=dry_run, log=log)
+    buttondown_send(digest["title"], render_markdown(digest), dry_run=dry_run, log=log)
     send_email(digest["title"], render_html(digest), render_text(digest), dry_run=dry_run, log=log)
 
 

@@ -67,13 +67,14 @@ async function main() {
   globe.viewFrom(state.loc?.lat ?? 21, state.loc?.lon ?? 79);
 
   sheet = new Sheet($("#panel"), $("#sheet-handle"), $("#grabber"), {
-    onChange: (detent) => {
-      document.body.classList.remove("sheet-small", "sheet-medium", "sheet-large");
-      document.body.classList.add(`sheet-${detent}`);
+    initial: store.get("sheetH"),
+    onChange: (h, final) => {
+      layoutAroundSheet(h);
+      if (final && h > 64) store.set("sheetH", h);
     },
   });
   sheet.enable(compact.matches);
-  compact.addEventListener("change", (e) => sheet.enable(e.matches));
+  compact.addEventListener("change", (e) => { sheet.enable(e.matches); layoutAroundSheet(sheet.height ?? 0); });
 
   buildChrome();
   bindEvents();
@@ -278,11 +279,46 @@ function showTab(id) {
   render({ restore: true });
 }
 
+// On phones, tapping the tab you're on hides the sheet for the whole Earth;
+// tapping it again (or any tab) brings the sheet back where you left it.
+function tapTab(id, fromTabBar) {
+  if (fromTabBar && compact.matches && id === state.tab) {
+    if (sheet.hidden) return sheet.show();
+    sheet.hide();
+    if (!store.get("hideHintShown")) {
+      toast(`Tap ${TABS.find((t) => t.id === id).label} again to bring it back`);
+      store.set("hideHintShown", true);
+    }
+    return;
+  }
+  if (compact.matches && sheet.hidden) sheet.show();
+  showTab(id);
+}
+
+// Keep the floating controls clear of the sheet as it moves, and centre the
+// Earth when the sheet is down.
+function layoutAroundSheet(h) {
+  const cls = document.body.classList;
+  if (!compact.matches) {
+    cls.remove("sheet-low", "hide-controls", "hide-hud");
+    return;
+  }
+  const panelTop = $("#tabbar").getBoundingClientRect().top - 6 - h;
+  const controls = $(".map-controls").getBoundingClientRect();
+  const hud = $("#hud");
+  const hudH = hud.hidden ? 0 : hud.offsetHeight + 10;
+  const capsule = $("#capsule");
+  const capsuleBottom = capsule.hidden ? 0 : capsule.getBoundingClientRect().bottom;
+  cls.toggle("sheet-low", h <= 120);
+  cls.toggle("hide-controls", panelTop - hudH < controls.bottom + 8);
+  cls.toggle("hide-hud", hudH > 0 && panelTop - hudH < capsuleBottom + 8);
+}
+
 function push(entry) {
   top().scroll = body().scrollTop;
   stack().push(entry);
   render({ focus: true });
-  if (compact.matches && sheet.detent === "small") sheet.set("medium");
+  if (compact.matches) sheet.ensureOpen();
 }
 
 function pop() {
@@ -583,8 +619,25 @@ function viewDigest() {
         `<a class="cell" href="${esc(d.url)}" target="_blank" rel="noopener"><span class="cell-main"><span class="cell-title plain">${esc(d.title)}</span></span><span class="chev">${icons.chevronRight}</span></a>`).join("")}</div>` : ""}`
       : `<div class="empty"><div class="empty-icon">${icons.digest}</div><h3>First Digest on Sunday</h3>
          <p>Every week: what's launching, the best passes over your city and the week's biggest stories.</p></div>`}
-    <h2 class="section-head">Get It Every Sunday</h2>${sub}
+    <h2 class="section-head">Get It Every Sunday</h2>${emailForm()}${emailForm() ? '<div style="height:10px"></div>' : ""}${sub}
     ${news ? `<h2 class="section-head">Latest News</h2><div class="group">${news}</div><p class="footnote">News from the Spaceflight News API.</p>` : ""}`;
+}
+
+// Email sign-up through Buttondown, which handles confirmation and unsubscribing.
+// It has to be a plain form post (Buttondown may ask for a CAPTCHA), so it opens
+// Buttondown in a new tab.
+function emailForm() {
+  const user = state.cfg.email?.buttondown_username;
+  if (!user) return "";
+  const city = nearestCity();
+  return `<form class="group email-form" data-email-form method="post" target="_blank" novalidate
+      action="https://buttondown.com/api/emails/embed-subscribe/${encodeURIComponent(user)}">
+    <input type="email" name="email" required autocomplete="email" inputmode="email" placeholder="you@example.com" aria-label="Email address">
+    <input type="hidden" name="tag" value="orbital">
+    ${city ? `<input type="hidden" name="metadata__city" value="${esc(city.id)}">` : ""}
+    <button class="btn btn-primary" type="submit">Subscribe</button>
+  </form>
+  <p class="footnote" data-email-note>The digest every Sunday, in your inbox. Unsubscribe any time.</p>`;
 }
 
 function subscribeCells(topic, withFeeds = false) {
@@ -623,6 +676,7 @@ function viewAlerts() {
     ${subscribeCells(state.cfg.ntfy.launches_topic)}
     <p class="footnote">60 and 10 minutes before launches worth watching. Reminders move when a launch slips and disappear if it's scrubbed.</p>
     <h2 class="section-head">Weekly Digest</h2>
+    ${emailForm()}${emailForm() ? '<div style="height:10px"></div>' : ""}
     ${subscribeCells(state.cfg.ntfy.weekly_topic)}
     <h2 class="section-head">Calendar</h2>
     <div class="group"><button class="cell cell-action" data-act="ics-all"><span class="cell-icon">${icons.calendar}</span>
@@ -765,7 +819,9 @@ function hudRange() {
 
 function updateHud() {
   const show = !globe.live || state.hudOpen || top().v === "flight";
+  const changed = $("#hud").hidden === show;
   $("#hud").hidden = !show;
+  if (changed && sheet) layoutAroundSheet(sheet.height ?? 0);
   $("#btn-time").setAttribute("aria-pressed", String(show));
   if (!show) return;
   const t = globe.time();
@@ -833,7 +889,7 @@ function watchPass(entry) {
   }
   globe.setTime((entry.p.visStart ?? entry.p.start) - 90, 10);
   globe.flyTo(state.loc.lat, state.loc.lon, 7_000_000);
-  if (compact.matches) sheet.set("small");
+  if (compact.matches) sheet.fold();
   updateHud();
 }
 
@@ -879,7 +935,7 @@ function openLocation() {
   $("#dlg-loc").showModal();
 }
 
-let detentBeforeLayers = null;
+let heightBeforeLayers = null;
 function toggleLayers(open) {
   if (open) renderLayers();
   $("#layers").hidden = !open;
@@ -887,11 +943,11 @@ function toggleLayers(open) {
   // On phones the sheet steps down so the layer switches have room, then comes back.
   if (!compact.matches) return;
   if (open) {
-    detentBeforeLayers = sheet.detent;
-    sheet.set("small");
-  } else if (detentBeforeLayers) {
-    sheet.set(detentBeforeLayers);
-    detentBeforeLayers = null;
+    heightBeforeLayers = sheet.height;
+    sheet.fold();
+  } else if (heightBeforeLayers !== null) {
+    sheet.set(heightBeforeLayers);
+    heightBeforeLayers = null;
   }
 }
 
@@ -950,7 +1006,7 @@ function bindEvents() {
   document.addEventListener("click", (e) => {
     const t = e.target;
     const tab = t.closest("[data-tab]");
-    if (tab) return showTab(tab.dataset.tab);
+    if (tab) return tapTab(tab.dataset.tab, tab.closest("#tabbar") !== null);
     const nav = t.closest("[data-nav]");
     if (nav) {
       const v = nav.dataset.nav;
@@ -984,6 +1040,26 @@ function bindEvents() {
       const sat = state.byNorad.get(norad) || state.sats.find((s) => s.name.toLowerCase().includes(text.toLowerCase()));
       if (sat && text) { t.value = ""; selectSat(sat); globe.refresh(); }
     }
+  });
+
+  document.addEventListener("submit", (e) => {
+    const form = e.target.closest("[data-email-form]");
+    if (!form) return;
+    const note = form.nextElementSibling;
+    const email = form.email.value.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
+      e.preventDefault();
+      note.textContent = "Enter a full email address, like you@example.com.";
+      note.classList.remove("done");
+      note.classList.add("error");
+      return form.email.focus();
+    }
+    setTimeout(() => {
+      note.textContent = "Almost there: confirm in the tab that just opened, then check your inbox.";
+      note.classList.remove("error");
+      note.classList.add("done");
+      form.reset();
+    }, 50);
   });
 
   document.addEventListener("input", (e) => {
@@ -1067,14 +1143,14 @@ function action(name, el) {
     case "show-pad": {
       const l = state.launches.find((x) => x.id === el.dataset.id);
       if (l) globe.showPad(l);
-      if (compact.matches) sheet.set("small");
+      if (compact.matches) sheet.fold();
       return;
     }
     case "flight-live": globe.setLive(); return updateHud();
     case "flight-replay": if (track) globe.setTime(state.flightT0 - 20, 60); return updateHud();
     case "jump":
       if (track) globe.setTime(state.flightT0 + Number(el.dataset.met) - 20, 10);
-      if (compact.matches) sheet.set("small");
+      if (compact.matches) sheet.fold();
       return updateHud();
     default: return undefined;
   }

@@ -221,7 +221,7 @@ button.cell:active, a.cell:active { background: var(--cell-press); }
 
 /* Search field */
 .search { display: flex; align-items: center; gap: 8px; padding: 0 10px; height: 36px; border-radius: var(--r-control); background: var(--fill-2); color: var(--label-3); }
-.search input { flex: 1; min-width: 0; border: 0; background: none; outline: none; color: var(--label); font-size: var(--f-body); }
+.search input { flex: 1; min-width: 0; height: 100%; border: 0; background: none; outline: none; color: var(--label); font-size: var(--f-body); }
 .search input::placeholder { color: var(--label-3); }
 
 /* Empty state */
@@ -277,6 +277,17 @@ input[type="range"] { width: 100%; height: 32px; accent-color: var(--blue-fill);
 .feature .btn { width: 100%; }
 .eyebrow { font-size: var(--f-caption); font-weight: 600; color: var(--label-2); }
 code.topic { font: 500 var(--f-footnote) ui-monospace, "SF Mono", Menlo, Consolas, monospace; color: var(--label); }
+
+/* Email sign-up */
+.email-form { display: flex; gap: 8px; padding: 8px; }
+.email-form input[type="email"] {
+  flex: 1; min-width: 0; height: 44px; padding: 0 12px; border-radius: 10px; border: 1px solid var(--separator);
+  background: rgba(255, 255, 255, 0.05); color: var(--label); font-size: var(--f-body); outline: none;
+}
+.email-form input[type="email"]::placeholder { color: var(--label-3); }
+.email-form input[type="email"]:focus { border-color: var(--blue); }
+.email-form .btn { height: 44px; flex: none; }
+.footnote.done { color: var(--green); }
 
 /* Floating controls ------------------------------------------------------- */
 .map-controls {
@@ -357,7 +368,7 @@ body.picking .globe { cursor: crosshair; }
     top: auto; left: 8px; right: 8px; bottom: calc(var(--tabbar-h) + 16px + env(safe-area-inset-bottom)); width: auto;
     height: var(--sheet-h); border-radius: 26px; transition: height 0.42s var(--ease);
   }
-  .panel.dragging { transition: none; }
+  .panel.dragging { transition: none !important; }
   .sheet-handle { display: block; padding: 2px 0 0; cursor: grab; touch-action: none; }
   .grabber { position: relative; width: 120px; height: 32px; margin: 0 auto; border-radius: 16px; cursor: pointer; }
   .grabber::before { content: ""; position: absolute; left: 50%; top: 50%; width: 38px; height: 5px; margin: -2.5px 0 0 -19px; border-radius: 3px; background: var(--label-3); }
@@ -390,9 +401,15 @@ body.picking .globe { cursor: crosshair; }
   .hud-btn { width: 40px; height: 40px; }
   .hud-time span { display: none; }
   .toast { bottom: calc(var(--tabbar-h) + 30px + var(--sheet-h)); }
-  /* A fully raised sheet covers the globe, so the floating controls step aside. */
-  body.sheet-large .map-controls, body.sheet-large .hud, body.sheet-large .popover { opacity: 0; pointer-events: none; }
-  .map-controls, .hud { transition: opacity 0.2s; }
+  /* The sheet goes wherever you leave it; floating controls step aside when it
+     rises past them, and the Earth slides to the centre when it's down. */
+  .panel { transition: height 0.42s var(--ease), opacity 0.3s; }
+  .panel.is-hidden { opacity: 0; pointer-events: none; border-color: transparent; box-shadow: none; }
+  body.hide-controls .map-controls, body.hide-controls .popover, body.hide-hud .hud { opacity: 0; pointer-events: none; }
+  .map-controls, .hud { transition: opacity 0.2s, bottom 0.42s var(--ease); }
+  .globe { transition: transform 0.5s var(--ease); }
+  body.sheet-low .globe { transform: translateY(13vh); }
+  .panel.dragging, .panel.dragging ~ .hud { transition: none; }
 }
 
 /* Short windows (landscape phones): a slimmer sidebar */

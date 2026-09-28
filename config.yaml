@@ -22,6 +22,11 @@ telegram:
   # token and chat id come from TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID.
   channel_url: ""
 
+email:
+  # Your Buttondown username. Set it to show the email sign-up on the site; the
+  # weekly digest then goes to subscribers using the BUTTONDOWN_API_KEY secret.
+  buttondown_username: ""
+
 alerts:
   horizon_hours: 48       # schedule alerts this far ahead (ntfy allows up to 72)
   lead_minutes: 10        # ping this long before the object comes into view

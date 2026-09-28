@@ -103,3 +103,49 @@ def test_notable_launches():
     assert not sources.is_notable(plain, cfg)
     isro = {**plain, "pad": {**plain["pad"], "country": "IN"}}
     assert sources.is_notable(isro, cfg)
+
+
+class _Json:
+    def __init__(self, data, ok=True):
+        self._data, self.ok, self.status_code = data, ok, 200 if ok else 404
+
+    def json(self):
+        return self._data
+
+    def raise_for_status(self):
+        pass
+
+
+class _Buttondown:
+    def __init__(self, existing=()):
+        self.existing = [{"subject": s} for s in existing]
+        self.posts = []
+
+    def get(self, url, params=None, headers=None, timeout=None):
+        return _Json({"results": self.existing})
+
+    def post(self, url, headers=None, json=None, timeout=None):
+        self.posts.append((url, headers, json))
+        return _Json({})
+
+
+def test_email_digest_via_buttondown(cfg, http, monkeypatch):
+    from orbital.notify import buttondown_send
+    d = digest.build(cfg, http, now=iss_epoch(), log=lambda *_: None)
+    md = digest.render_markdown(d)
+    assert "## Launching this week" in md and f"## Look up from {d['look_city']}" in md
+    assert not md.startswith("---") and not EMOJI.search(md)
+
+    monkeypatch.delenv("BUTTONDOWN_API_KEY", raising=False)
+    assert buttondown_send(d["title"], md, session=_Buttondown(), log=lambda *_: None) is False
+
+    monkeypatch.setenv("BUTTONDOWN_API_KEY", "test-key")
+    session = _Buttondown()
+    assert buttondown_send(d["title"], md, session=session, log=lambda *_: None) is True
+    url, headers, body = session.posts[0]
+    assert url.endswith("/v1/emails") and headers["Authorization"] == "Token test-key"
+    assert body == {"subject": d["title"], "body": md, "status": "about_to_send"}
+
+    rerun = _Buttondown(existing=[d["title"]])
+    assert buttondown_send(d["title"], md, session=rerun, log=lambda *_: None) is False
+    assert rerun.posts == []
