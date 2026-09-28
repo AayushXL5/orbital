@@ -1,0 +1,60 @@
+# Refresh the data behind the site, reschedule pass alerts, and deploy to GitHub Pages.
+# Scheduled runs wait for the repository variable ORBITAL_ENABLED=true (see README).
+name: Site
+
+on:
+  push:
+    branches: [main]
+    paths-ignore: ["**.md", "tests/**"]
+  schedule:
+    - cron: "17 */6 * * *"   # every 6 hours: fresh orbits and launch times
+  workflow_dispatch:
+  workflow_call:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: site
+  cancel-in-progress: false
+
+jobs:
+  build:
+    if: vars.ORBITAL_ENABLED == 'true' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: main
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Build site data
+        run: python -m orbital build
+        env:
+          LL2_TOKEN: ${{ secrets.LL2_TOKEN }}
+      - name: Schedule pass alerts
+        if: github.event_name != 'push'
+        continue-on-error: true
+        run: python -m orbital alerts
+        env:
+          NTFY_TOKEN: ${{ secrets.NTFY_TOKEN }}
+      - uses: actions/configure-pages@v6
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: web
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5

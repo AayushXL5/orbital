@@ -1,0 +1,197 @@
+{
+ "count": 28,
+ "next": "https://lldev.thespacedevs.com/2.3.0/events/upcoming/?limit=3&offset=3",
+ "previous": null,
+ "results": [
+  {
+   "id": 1017,
+   "url": "https://lldev.thespacedevs.com/2.3.0/events/1017/",
+   "name": "Juice Earth Flyby",
+   "info_urls": [
+    {
+     "priority": 10,
+     "source": "esa.int",
+     "title": "Juice to fly past Earth for third gravity assist",
+     "description": "The European Space Agency’s Jupiter Icy Moons Explorer (Juice) will return to Earth on 28 September, with flight controllers guiding the spacecraft close to our home planet to alter its speed and direction en route to Jupiter.",
+     "feature_image": null,
+     "url": "https://www.esa.int/Science_Exploration/Space_Science/Juice/Juice_to_fly_past_Earth_for_third_gravity_assist",
+     "type": {
+      "id": 1,
+      "name": "Official Page"
+     },
+     "language": {
+      "id": 1,
+      "name": "English",
+      "code": "en"
+     }
+    }
+   ],
+   "vid_urls": [],
+   "image": {
+    "id": 1035,
+    "name": "JUICE render",
+    "image_url": "https://thespacedevs-dev.nyc3.digitaloceanspaces.com/media/images/255bauto255d__image_20240307192047.jpeg",
+    "thumbnail_url": "https://thespacedevs-dev.nyc3.digitaloceanspaces.com/media/images/255bauto255d__image_thumbnail_20240307192048.jpeg",
+    "credit": "spacecraft: ESA/ATG medialab; Jupiter: NASA/ESA/J. Nichols (University of Leicester); Ganymede: NASA/JPL; Io: NASA/JPL/University of Arizona; Callisto and Europa: NASA/JPL/DLR",
+    "license": {
+     "id": 2,
+     "name": "ESA Standard Licence",
+     "priority": 2,
+     "link": "https://www.esa.int/ESA_Multimedia/Terms_and_conditions_of_use_of_images_and_videos_available_on_the_esa_website"
+    },
+    "single_use": false,
+    "variants": []
+   },
+   "date": "2026-09-28T11:45:11Z",
+   "slug": "juice-earth-flyby",
+   "type": {
+    "id": 23,
+    "name": "Flyby"
+   },
+   "description": "Third flyby of ESA's Jupiter Icy Moons Explorer (Juice) mission on its way to the Jovian system.",
+   "webcast_live": false,
+   "location": "Earth",
+   "date_precision": {
+    "id": 0,
+    "name": "Second",
+    "abbrev": "SEC",
+    "description": "The T-0 is accurate to the second."
+   },
+   "response_mode": "normal",
+   "duration": null,
+   "updates": [
+    {
+     "id": 16181,
+     "profile_image": "https://thespacedevs-dev.nyc3.digitaloceanspaces.com/media/profile_images/cosmic2520penguin_profile_20210817212020.png",
+     "comment": "Updated Earth fly-by date and closest approach time.",
+     "info_url": "https://x.com/juice_japan/status/2101638833716813901",
+     "created_by": "Cosmic_Penguin",
+     "created_on": "2026-09-20T14:03:00Z"
+    }
+   ],
+   "last_updated": "2026-09-22T06:18:31Z"
+  },
+  {
+   "id": 1520,
+   "url": "https://lldev.thespacedevs.com/2.3.0/events/1520/",
+   "name": "International Space Station Operations Update Media Teleconference",
+   "info_urls": [],
+   "vid_urls": [
+    {
+     "priority": 10,
+     "source": "youtube.com",
+     "publisher": "NASA",
+     "title": "Space Station Operations Update (Sept. 28, 2026)",
+     "description": "Leaders from NASA and Boeing hold a news conference at NASA's Kennedy Space Center to provide updates on Starliner development and plans for crew flights to and from the International Space Station. \n\nBriefing participants include:\n \n* NASA Administrator Jared Isaacman\n* Dana Weigel, manager, NASA’s Low Earth Orbit Program\n* Woody Hoburg, NASA astronaut\n* John Mulholland, vice president and program manager, Boeing Commercial Crew\n\nLearn more about the Commercial Crew Program: https://www.nasa.gov/commercialcrew\nGet daily updates from the station: https://www.nasa.gov/blogs/spacestation/",
+     "feature_image": "https://i.ytimg.com/vi/j9epFget1W8/maxresdefault_live.jpg",
+     "url": "https://www.youtube.com/watch?v=j9epFget1W8",
+     "type": {
+      "id": 1,
+      "name": "Official Webcast"
+     },
+     "language": {
+      "id": 1,
+      "name": "English",
+      "code": "en"
+     },
+     "start_time": "2026-09-28T19:00:00Z",
+     "end_time": null,
+     "live": false
+    }
+   ],
+   "image": {
+    "id": 2127,
+    "name": "Boeing Starliner in Orbit (CFT)",
+    "image_url": "https://thespacedevs-dev.nyc3.digitaloceanspaces.com/media/images/boeing_starline_image_20240723193124.jpg",
+    "thumbnail_url": "https://thespacedevs-dev.nyc3.digitaloceanspaces.com/media/images/boeing_starline_image_thumbnail_20240723193124.jpeg",
+    "credit": "NASA",
+    "license": {
+     "id": 4,
+     "name": "NASA Image and Media Guidelines",
+     "priority": 0,
+     "link": "https://www.nasa.gov/nasa-brand-center/images-and-media/"
+    },
+    "single_use": false,
+    "variants": []
+   },
+   "date": "2026-09-28T19:00:00Z",
+   "slug": "international-space-station-operations-update-me-2",
+   "type": {
+    "id": 20,
+    "name": "Press Event"
+   },
+   "description": "During a news conference at 3 p.m. EDT on Monday, Sept. 28, NASA and Boeing leadership will discuss Starliner’s development and plans for regular crew flights to and from the International Space Station.\r\n\r\nThe briefing participants include:\r\n\r\n* NASA Administrator Jared Isaacman\r\n* Dana Weigel, manager, NASA’s Low Earth Orbit Program\r\n* Woody Hoburg, NASA astronaut\r\n* John Mulholland, vice president and program manager, Boeing Commercial Crew",
+   "webcast_live": false,
+   "location": "Kennedy Space Center, Florida, USA",
+   "date_precision": {
+    "id": 1,
+    "name": "Minute",
+    "abbrev": "MIN",
+    "description": "The T-0 is accurate to the minute."
+   },
+   "response_mode": "normal",
+   "duration": null,
+   "updates": [
+    {
+     "id": 16204,
+     "profile_image": "https://thespacedevs-dev.nyc3.digitaloceanspaces.com/media/profile_images/cosmic2520penguin_profile_20210817212020.png",
+     "comment": "Added briefing.",
+     "info_url": "https://www.nasa.gov/news-release/nasa-boeing-to-provide-update-on-starliner-development/",
+     "created_by": "Cosmic_Penguin",
+     "created_on": "2026-09-26T01:34:00Z"
+    }
+   ],
+   "last_updated": "2026-09-26T01:34:56Z"
+  },
+  {
+   "id": 1519,
+   "url": "https://lldev.thespacedevs.com/2.3.0/events/1519/",
+   "name": "SpaceX Crew-13 Crew Dragon Docking",
+   "info_urls": [],
+   "vid_urls": [],
+   "image": {
+    "id": 1181,
+    "name": "Crew Dragon docking",
+    "image_url": "https://thespacedevs-dev.nyc3.digitaloceanspaces.com/media/images/spacex_dm-2_cre_image_20200504065311.jpeg",
+    "thumbnail_url": "https://thespacedevs-dev.nyc3.digitaloceanspaces.com/media/images/255bauto255d__image_thumbnail_20240305191923.jpeg",
+    "credit": "NASA",
+    "license": {
+     "id": 4,
+     "name": "NASA Image and Media Guidelines",
+     "priority": 0,
+     "link": "https://www.nasa.gov/nasa-brand-center/images-and-media/"
+    },
+    "single_use": false,
+    "variants": []
+   },
+   "date": "2026-10-02T00:00:00Z",
+   "slug": "spacex-crew-13-crew-dragon-docking",
+   "type": {
+    "id": 2,
+    "name": "Docking"
+   },
+   "description": "The Crew-13 Crew Dragon will dock autonomously to the International Space Station, carrying four astronauts to the International Space Station.",
+   "webcast_live": false,
+   "location": "International Space Station",
+   "date_precision": {
+    "id": 1,
+    "name": "Minute",
+    "abbrev": "MIN",
+    "description": "The T-0 is accurate to the minute."
+   },
+   "response_mode": "normal",
+   "duration": null,
+   "updates": [
+    {
+     "id": 16155,
+     "profile_image": "https://thespacedevs-dev.nyc3.digitaloceanspaces.com/media/profile_images/cosmic2520penguin_profile_20210817212020.png",
+     "comment": "Added docking.",
+     "info_url": "https://nasa-public-data.s3.amazonaws.com/iss-coords/current/ISS_OEM/ISS.OEM_J2K_EPH.txt",
+     "created_by": "Cosmic_Penguin",
+     "created_on": "2026-09-18T15:37:00Z"
+    }
+   ],
+   "last_updated": "2026-09-18T15:37:04Z"
+  }
+ ]
+}

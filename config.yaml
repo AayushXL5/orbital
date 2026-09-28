@@ -1,0 +1,68 @@
+# Orbital configuration. Secrets never go in this file: they come from
+# environment variables (GitHub repository secrets in CI). See README.md.
+
+site:
+  name: Orbital
+  tagline: Spaceflight over you — passes, launches and planned orbits
+  # Public URL of the deployed site. Notification links point here.
+  url: https://aayushxl5.github.io/orbital/
+  # Times in the weekly digest and Telegram posts use this zone.
+  timezone: Asia/Kolkata
+  # Whose sky the digest's "Look up" section covers (a city id below).
+  digest_city: delhi
+
+ntfy:
+  server: https://ntfy.sh
+  # Topics are <prefix>-<city id>, <prefix>-launches and <prefix>-weekly.
+  # Anyone can read or post to an ntfy.sh topic, so keep the prefix unique.
+  topic_prefix: orbital-59vmuy
+
+telegram:
+  # Public link to the channel the bot posts to, shown on the site. The bot
+  # token and chat id come from TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID.
+  channel_url: ""
+
+alerts:
+  horizon_hours: 48       # schedule alerts this far ahead (ntfy allows up to 72)
+  lead_minutes: 10        # ping this long before the object comes into view
+  min_elevation_deg: 10   # a pass starts and ends at this elevation
+  min_peak_deg: 30        # only alert for passes that climb at least this high
+  dark_sun_deg: -6        # the sky counts as dark once the Sun is this far down
+  objects:
+    - {norad: 25544, name: ISS}
+    - {norad: 48274, name: Tiangong}
+  flights:
+    lead_minutes: 5
+    min_peak_deg: 15
+
+launches:
+  reminders_minutes: [60, 10]
+  # Launches that get reminders and a star in the digest.
+  notable:
+    rockets: [Starship, New Glenn, SLS, Neutron, LVM3, GSLV, PSLV, SSLV, Vikram, Agnibaan, Ariane 6, H3]
+    countries: [IN]
+    crewed: true
+
+satellite_groups:
+  - {id: stations, label: Space stations, color: "#ffd166", labels: true}
+  - {id: visual, label: Bright satellites, color: "#8ecae6"}
+  - {id: last-30-days, label: Launched in the last 30 days, color: "#ff8fab", default_on: false}
+
+# Each city gets its own alert topic. Add yours and open a pull request.
+cities:
+  - {id: delhi, name: New Delhi, lat: 28.6139, lon: 77.2090, tz: Asia/Kolkata}
+  - {id: mumbai, name: Mumbai, lat: 19.0760, lon: 72.8777, tz: Asia/Kolkata}
+  - {id: bengaluru, name: Bengaluru, lat: 12.9716, lon: 77.5946, tz: Asia/Kolkata}
+  - {id: chennai, name: Chennai, lat: 13.0827, lon: 80.2707, tz: Asia/Kolkata}
+  - {id: kolkata, name: Kolkata, lat: 22.5726, lon: 88.3639, tz: Asia/Kolkata}
+  - {id: hyderabad, name: Hyderabad, lat: 17.3850, lon: 78.4867, tz: Asia/Kolkata}
+  - {id: pune, name: Pune, lat: 18.5204, lon: 73.8567, tz: Asia/Kolkata}
+  - {id: ahmedabad, name: Ahmedabad, lat: 23.0225, lon: 72.5714, tz: Asia/Kolkata}
+  - {id: jaipur, name: Jaipur, lat: 26.9124, lon: 75.7873, tz: Asia/Kolkata}
+  - {id: lucknow, name: Lucknow, lat: 26.8467, lon: 80.9462, tz: Asia/Kolkata}
+  - {id: guwahati, name: Guwahati, lat: 26.1445, lon: 91.7362, tz: Asia/Kolkata}
+  - {id: kochi, name: Kochi, lat: 9.9312, lon: 76.2673, tz: Asia/Kolkata}
+  - {id: london, name: London, lat: 51.5074, lon: -0.1278, tz: Europe/London}
+  - {id: new-york, name: New York, lat: 40.7128, lon: -74.0060, tz: America/New_York}
+  - {id: singapore, name: Singapore, lat: 1.3521, lon: 103.8198, tz: Asia/Singapore}
+  - {id: sydney, name: Sydney, lat: -33.8688, lon: 151.2093, tz: Australia/Sydney}

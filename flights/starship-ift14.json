@@ -1,0 +1,43 @@
+{
+  "id": "starship-ift14",
+  "name": "Starship Flight 14",
+  "vehicle": "Starship V3",
+  "summary": "First orbital Starship flight and the first to deploy Starlink satellites. Six orbits at 275 km, then a deorbit burn and landing in the South Pacific west of Chile.",
+  "ll2_id": "7d1afb26-6f9c-429b-9ccf-29012fd1e519",
+  "pad": {"name": "Starbase, Orbital Launch Pad 2", "lat": 25.99677, "lon": -97.15799},
+  "t0": "2026-09-28T12:15:00Z",
+  "window_end": "2026-09-28T13:30:00Z",
+  "t0_actual": "2026-09-28T12:48:59Z",
+  "model": {
+    "inclination_deg": 30.4937,
+    "altitude_km": 275,
+    "branch": "descending",
+    "seco_s": 491,
+    "seco_alt_km": 150,
+    "insertion_s": 1528,
+    "phase_lag_s": 265,
+    "deorbit_s": 31938,
+    "entry_s": 34132,
+    "end_s": 35430,
+    "landing": {"lat": -30.6492, "lon": -99.4361}
+  },
+  "events": [
+    {"met": 0, "label": "Liftoff", "major": true},
+    {"met": 58, "label": "Max Q"},
+    {"met": 142, "label": "Hot staging"},
+    {"met": 421, "label": "Super Heavy landing burn ends"},
+    {"met": 491, "label": "Starship engine cutoff", "major": true},
+    {"met": 1528, "label": "Orbital insertion burn", "major": true},
+    {"met": 2058, "label": "Starlink deploy starts"},
+    {"met": 3890, "label": "Starlink deploy complete"},
+    {"met": 31938, "label": "Deorbit burn", "major": true},
+    {"met": 34132, "label": "Entry"},
+    {"met": 35250, "label": "Transonic"},
+    {"met": 35413, "label": "Landing flip"},
+    {"met": 35430, "label": "Landing", "major": true}
+  ],
+  "source": {
+    "text": "Orbit fitted to the NAVAREA IV/XII and HYDROPAC hazard zones by exoplanet5 (MIT); event times from SpaceX's flight timeline. A model, not official ephemeris.",
+    "url": "https://github.com/exoplanet5/Starship-IFT14"
+  }
+}

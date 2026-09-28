@@ -1,0 +1,19 @@
+{
+  "name": "orbital-web",
+  "private": true,
+  "type": "module",
+  "description": "Browser side of Orbital: tests and the vendored satellite.js bundle.",
+  "scripts": {
+    "vendor": "esbuild scripts/satellite-entry.js --bundle --format=esm --minify --legal-comments=inline --outfile=web/vendor/satellite.esm.js",
+    "test": "node --test \"tests/js/*.test.mjs\"",
+    "smoke": "node scripts/smoke.mjs",
+    "icons": "node scripts/build-icons.mjs",
+    "mobile": "node scripts/mobile-check.mjs"
+  },
+  "devDependencies": {
+    "@phosphor-icons/core": "^2.1.1",
+    "esbuild": "^0.25.0",
+    "puppeteer-core": "^24.0.0",
+    "satellite.js": "7.1.0"
+  }
+}

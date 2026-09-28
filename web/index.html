@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Orbital</title>
+<meta name="description" content="Know when to look up. When the ISS, Tiangong and Starship pass over your city, launch countdowns, planned orbits on a 3D globe, and a weekly space digest.">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#000000">
+<link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<link rel="alternate" type="application/rss+xml" title="Orbital weekly digest" href="digest/feed.xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cesium@1.145.0/Build/Cesium/Widgets/widgets.css">
+<link rel="stylesheet" href="css/app.css">
+<script>window.CESIUM_BASE_URL = "https://cdn.jsdelivr.net/npm/cesium@1.145.0/Build/Cesium/";</script>
+<script src="https://cdn.jsdelivr.net/npm/cesium@1.145.0/Build/Cesium/Cesium.js" defer></script>
+<script type="importmap">{ "imports": { "satellite.js": "./vendor/satellite.esm.js" } }</script>
+<script type="module" src="js/app.js"></script>
+</head>
+<body>
+<div id="globe" class="globe" role="img" aria-label="Globe showing satellites and flight paths"></div>
+
+<button id="capsule" class="capsule material" hidden>
+  <span class="capsule-dot" aria-hidden="true"></span>
+  <span class="capsule-text"><span class="capsule-title"></span><span class="capsule-sub"></span></span>
+  <span class="capsule-clock"></span>
+</button>
+
+<div class="map-controls material" role="toolbar" aria-label="Globe controls">
+  <button id="btn-locate" class="map-btn" aria-label="Go to My Location" title="Go to My Location"></button>
+  <button id="btn-time" class="map-btn" aria-label="Time Controls" title="Time Controls" aria-pressed="false"></button>
+  <button id="btn-layers" class="map-btn" aria-label="Globe Layers" title="Globe Layers" aria-expanded="false"></button>
+</div>
+<div id="layers" class="popover material" role="dialog" aria-label="Globe layers" hidden></div>
+
+<aside id="panel" class="panel material" aria-label="Orbital">
+  <div id="sheet-handle" class="sheet-handle">
+    <div id="grabber" class="grabber" role="button" tabindex="0" aria-label="Resize"></div>
+  </div>
+  <div id="segmented" class="segmented" role="tablist" aria-label="Sections"></div>
+  <div id="panel-body" class="panel-body"></div>
+</aside>
+
+<nav id="tabbar" class="tabbar material" role="tablist" aria-label="Sections"></nav>
+
+<div id="hud" class="hud material" hidden>
+  <button id="hud-back" class="hud-btn" aria-label="Back 10 Minutes" title="Back 10 Minutes"></button>
+  <button id="hud-play" class="hud-btn" aria-label="Pause" title="Pause"></button>
+  <select id="hud-speed" class="hud-speed" aria-label="Playback Speed"></select>
+  <input id="hud-scrub" class="hud-scrub" type="range" min="0" max="1000" step="1" aria-label="Time">
+  <span id="hud-time" class="hud-time"></span>
+  <button id="hud-live" class="hud-live">Live</button>
+</div>
+
+<div id="toast" class="toast material" role="status" hidden></div>
+<div id="fatal" class="fatal material" hidden></div>
+
+<dialog id="dlg-loc" class="modal material" aria-labelledby="loc-title">
+  <div class="modal-head">
+    <h2 id="loc-title" tabindex="-1" autofocus>Location</h2>
+    <button class="icon-btn" data-close aria-label="Close" id="loc-close"></button>
+  </div>
+  <div class="modal-body">
+    <div class="group">
+      <button class="cell cell-action" id="loc-geo" type="button"><span class="cell-icon" id="loc-geo-icon"></span><span class="cell-main"><span class="cell-title">Current Location</span></span></button>
+      <button class="cell cell-action" id="loc-pick" type="button"><span class="cell-icon" id="loc-pick-icon"></span><span class="cell-main"><span class="cell-title">Choose on Globe</span></span></button>
+    </div>
+    <p id="loc-error" class="footnote error" role="alert"></p>
+    <h3 class="section-head">Cities</h3>
+    <div class="group" id="loc-cities"></div>
+    <h3 class="section-head">Coordinates</h3>
+    <form id="loc-form" class="group form-group">
+      <label class="field"><span>Latitude</span><input id="loc-lat" inputmode="decimal" autocomplete="off" placeholder="28.6139"></label>
+      <label class="field"><span>Longitude</span><input id="loc-lon" inputmode="decimal" autocomplete="off" placeholder="77.2090"></label>
+      <label class="field"><span>Name</span><input id="loc-name" autocomplete="off" placeholder="Home"></label>
+      <div class="form-actions"><button type="submit" class="btn btn-primary">Use Coordinates</button></div>
+    </form>
+    <p class="footnote">Your location stays in this browser. Orbital uses it only to work out what passes over you.</p>
+  </div>
+</dialog>
+</body>
+</html>

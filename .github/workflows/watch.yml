@@ -1,0 +1,49 @@
+# Launch reminders and liftoff alerts. Runs hourly (ntfy delivers the reminders at
+# the exact minute, so the watcher only has to schedule them ahead), and exits in
+# seconds unless a notable launch or a planned flight is close.
+# Waits for the repository variable ORBITAL_ENABLED=true (see README).
+name: Launch watch
+
+on:
+  schedule:
+    - cron: "7 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: write
+
+concurrency:
+  group: watch
+  cancel-in-progress: false
+
+jobs:
+  watch:
+    if: vars.ORBITAL_ENABLED == 'true' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - id: check
+        name: Anything close?
+        run: python3 -m orbital.schedule_check
+      - if: steps.check.outputs.active == 'true' || github.event_name == 'workflow_dispatch'
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+          cache: pip
+      - if: steps.check.outputs.active == 'true' || github.event_name == 'workflow_dispatch'
+        run: pip install -r requirements.txt
+      - id: watch
+        if: steps.check.outputs.active == 'true' || github.event_name == 'workflow_dispatch'
+        run: python -m orbital watch
+        env:
+          LL2_TOKEN: ${{ secrets.LL2_TOKEN }}
+          NTFY_TOKEN: ${{ secrets.NTFY_TOKEN }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+      - name: Redeploy with the real launch time
+        if: steps.watch.outputs.rebuild == 'true'
+        run: gh workflow run site.yml --ref main
+        env:
+          GH_TOKEN: ${{ github.token }}

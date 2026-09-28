@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>{{ d.title }} · {{ d.site_name }}</title>
+<link rel="icon" href="../assets/icon.svg" type="image/svg+xml">
+<link rel="alternate" type="application/rss+xml" title="{{ d.site_name }} weekly digest" href="{{ d.site_url }}digest/feed.xml">
+<style>
+  :root { --label: #fff; --label-2: rgba(235,235,245,.72); --separator: rgba(235,235,245,.16); --cell: #1c1c1e;
+          --blue: #409cff; --green: #30d158; --orange: #ff9f0a; --red: #ff6961; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #000; color: var(--label); -webkit-font-smoothing: antialiased;
+         font: 16px/1.45 -apple-system, BlinkMacSystemFont, "SF Pro Text", Inter, "Segoe UI", Roboto, sans-serif; }
+  a { color: var(--blue); text-decoration: none; }
+  .wrap { max-width: 640px; margin: 0 auto; padding: 32px 16px 56px; }
+  .brand { display: flex; align-items: center; gap: 10px; color: var(--label-2); font-size: 14px; font-weight: 600; }
+  .brand img { width: 28px; height: 28px; border-radius: 7px; }
+  h1 { font: 700 30px/1.15 -apple-system, BlinkMacSystemFont, "SF Pro Display", Inter, "Segoe UI", sans-serif; letter-spacing: -.02em; margin: 18px 0 8px; }
+  .lede { color: var(--label-2); margin: 0; font-size: 15px; }
+  h2 { font-size: 13px; font-weight: 600; color: var(--label-2); margin: 32px 4px 8px; }
+  .group { background: var(--cell); border-radius: 12px; overflow: hidden; }
+  .row { display: flex; gap: 12px; justify-content: space-between; align-items: baseline; padding: 12px 16px; border-top: 1px solid var(--separator); }
+  .row:first-child { border-top: 0; }
+  .main { min-width: 0; }
+  .title { font-weight: 600; }
+  .sub { color: var(--label-2); font-size: 14px; margin-top: 2px; }
+  .when { color: var(--label-2); font-size: 14px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .tag { display: inline-block; font-size: 12px; font-weight: 600; padding: 1px 8px; border-radius: 999px; margin-left: 6px; vertical-align: 1px; }
+  .tag.watch { color: var(--orange); background: rgba(255,159,10,.16); }
+  .tag.ok { color: var(--green); background: rgba(48,209,88,.16); }
+  .tag.bad { color: var(--red); background: rgba(255,105,97,.16); }
+  .tag.plain { color: var(--label-2); background: rgba(120,120,128,.24); }
+  .feature { background: var(--cell); border-radius: 16px; padding: 18px; border: 1px solid rgba(255,159,10,.25); }
+  .feature .title { font-size: 18px; }
+  .button { display: inline-block; margin-top: 12px; padding: 9px 16px; border-radius: 10px; background: #0071e3; color: #fff; font-weight: 600; font-size: 15px; }
+  footer { margin-top: 40px; color: var(--label-2); font-size: 13px; line-height: 1.6; }
+  @media (max-width: 520px) { .row { flex-direction: column; gap: 2px; } .row .when { order: 2; } h1 { font-size: 26px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand"><img src="{{ d.site_url }}assets/icon-192.png" alt="">{{ d.site_name }} Weekly</div>
+  <h1>{{ d.title.replace("This week in space · ", "") }}</h1>
+  <p class="lede">{{ d.stats.launches }} launches scheduled{% if d.stats.notable %}, {{ d.stats.notable }} worth watching{% endif %}. Last week {{ d.stats.flown }} flew and {{ d.stats.succeeded }} succeeded. Times in {{ d.timezone }}.</p>
+
+  {% for f in d.flights %}
+  <h2>{{ "Coming Up" if f.upcoming else "Just Flew" }}</h2>
+  <div class="feature">
+    <div class="title">{{ f.name }}</div>
+    <div class="sub">{{ f.when }}</div>
+    <div class="sub" style="margin-top:8px">{{ f.summary }}</div>
+    <a class="button" href="{{ f.link }}">{{ "See the Planned Orbit" if f.upcoming else "Replay the Flight" }}</a>
+  </div>
+  {% endfor %}
+
+  <h2>Launching This Week</h2>
+  <div class="group">
+  {% for l in d.launches %}
+    <div class="row">
+      <div class="main"><div class="title">{{ l.short }}{% if l.notable %}<span class="tag watch">Worth Watching</span>{% endif %}</div>
+        <div class="sub">{{ l.vehicle }} · {{ l.site }}</div></div>
+      <div class="when">{{ l.when }}</div>
+    </div>
+  {% else %}
+    <div class="row"><div class="sub">No launches on the books this week.</div></div>
+  {% endfor %}
+  </div>
+
+  {% if d.events %}
+  <h2>Also This Week</h2>
+  <div class="group">
+  {% for e in d.events %}
+    <div class="row"><div class="main"><div class="title">{{ e.name }}</div><div class="sub">{{ e.type }}{% if e.location %} · {{ e.location }}{% endif %}</div></div><div class="when">{{ e.when }}</div></div>
+  {% endfor %}
+  </div>
+  {% endif %}
+
+  <h2>Look Up From {{ d.look_city }}</h2>
+  <div class="group">
+  {% for x in d.looks %}
+    <div class="row"><div class="main"><div class="title">{{ x.name }}, up to {{ x.max_el }}°</div><div class="sub">{{ x.text }}</div></div><div class="when">{{ x.when }}</div></div>
+  {% else %}
+    <div class="row"><div class="sub">No bright, high passes this week. Other cities may do better: <a href="{{ d.site_url }}">check yours</a>.</div></div>
+  {% endfor %}
+  </div>
+
+  {% if d.results %}
+  <h2>Last Week's Launches</h2>
+  <div class="group">
+  {% for l in d.results %}
+    <div class="row"><div class="main"><div class="title">{{ l.short }}</div><div class="sub">{{ l.when }} · {{ l.vehicle }}</div></div>
+      <span class="tag {{ 'ok' if l.status_id == 3 else 'bad' if l.status_id in (4, 7) else 'plain' }}">{{ l.status }}</span></div>
+  {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if d.news %}
+  <h2>News</h2>
+  <div class="group">
+  {% for n in d.news %}
+    <div class="row"><div class="main"><a class="title" href="{{ n.url }}" style="color:var(--label)">{{ n.title }}</a><div class="sub">{{ n.site }}</div></div></div>
+  {% endfor %}
+  </div>
+  {% endif %}
+
+  <footer>
+    Get this every Sunday on <a href="{{ d.subscribe.ntfy_weekly }}">ntfy</a>{% if d.subscribe.telegram %}, <a href="{{ d.subscribe.telegram }}">Telegram</a>{% endif %} or by <a href="{{ d.site_url }}digest/feed.xml">RSS</a>.
+    Pass alerts for your city and the live globe are at <a href="{{ d.site_url }}">{{ d.site_url }}</a>.<br>
+    Data from Launch Library 2 and the Spaceflight News API by The Space Devs, and CelesTrak.
+  </footer>
+</div>
+</body>
+</html>
